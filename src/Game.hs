@@ -27,5 +27,5 @@ handleInput gs = do
 gameLoop :: GameState -> IO ()
 gameLoop gs = do
     putStrLn $ displayBoard $ pieces gs
-    putStrLn $ playerMessage $currentPlayer gs
+    putStrLn $ playerMessage $ currentPlayer gs
     handleInput gs
