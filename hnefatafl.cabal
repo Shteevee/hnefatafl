@@ -30,6 +30,7 @@ library
       ParseMove
       Piece
       Player
+      ValidMove
   other-modules:
       Paths_hnefatafl
   hs-source-dirs:

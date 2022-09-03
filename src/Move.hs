@@ -6,14 +6,11 @@ import GameState
 type Move = (Pos, Pos)
 
 makeMove :: GameState -> Move -> [Piece]
-makeMove gs m =
-    if validMove gs m then
-        performMove gs m
-    else
-        pieces gs
+makeMove gs mv =
+    makeMove' (getPiece (fst mv) (pieces gs)) gs mv
 
-validMove :: GameState -> Move -> Bool
-validMove _ _ = True
-
-performMove :: GameState -> Move -> [Piece]
-performMove gs _ = pieces gs
+makeMove' :: Maybe Piece -> GameState -> Move -> [Piece]
+makeMove' (Just srcPiece) gs (src,dest) =
+    filter (/= srcPiece) (pieces gs) ++ [srcPiece { pos=dest }]
+makeMove' Nothing gs _ =
+    pieces gs
