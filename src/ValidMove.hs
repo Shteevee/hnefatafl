@@ -24,18 +24,22 @@ absRange (x,y)
     | y > x = [x+1..y]
     | otherwise = []
 
-getPosBetween :: Int -> Int -> Int -> [Pos]
-getPosBetween srcA destA srcB =
+getPosRangeY :: Int -> Int -> Int -> [Pos]
+getPosRangeY srcA destA srcB =
     zip (repeat srcB) (absRange (srcA,destA))
 
+getPosRangeX :: Int -> Int -> Int -> [Pos]
+getPosRangeX srcA destA srcB =
+    zip (absRange (srcA,destA)) (repeat srcB)
+
 pathIsValid :: Move -> [Piece] -> Bool
-pathIsValid ((srcX,srcY),(destX,destY)) ps
+pathIsValid ((srcX,srcY),(destX,destY)) pieces
     | srcX - destX == 0 = do
-        let posBetween = getPosBetween srcY destY srcX
-        all (\Piece {pos=pos} -> pos `notElem` posBetween) ps
+        let posBetween = getPosRangeY srcY destY srcX
+        all (\Piece {pos=pos} -> pos `notElem` posBetween) pieces
     | srcY - destY == 0 = do
-        let posBetween = getPosBetween srcX destX srcY
-        all (\Piece {pos=pos} -> pos `notElem` posBetween) ps
+        let posBetween = getPosRangeX srcX destX srcY
+        all (\Piece {pos=pos} -> pos `notElem` posBetween) pieces
     | otherwise = False
 
 validMove :: GameState -> Move -> Either Error Bool

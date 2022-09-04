@@ -1,6 +1,6 @@
 module Player where
 
-data Player = White | Black deriving Eq
+data Player = White | Black deriving (Eq, Show)
 
 playerMessage :: Player -> String
 playerMessage White = "White's turn"

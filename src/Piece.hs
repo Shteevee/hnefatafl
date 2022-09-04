@@ -4,12 +4,12 @@ import Player
 import Data.List (find)
 
 type Pos = (Int, Int)
-data UnitType = King | Reg deriving Eq
+data UnitType = King | Reg deriving (Eq, Show)
 data Piece = Piece {
     pos :: Pos,
     player :: Player,
     unitType :: UnitType
-} deriving Eq
+} deriving (Eq, Show)
 
 boardMin :: Int
 boardMin = 0
@@ -30,6 +30,26 @@ pieceString Nothing = "."
 
 getPiece :: Pos -> [Piece] -> Maybe Piece
 getPiece (x,y) = find (\Piece{ pos=(px, py) } -> px == x && py == y)
+
+isEnemyPiece :: Pos -> Player -> [Piece] -> Bool
+isEnemyPiece pos pl pieces =
+    isEnemyPiece' (getPiece pos pieces) pl
+
+isEnemyPiece' :: Maybe Piece -> Player -> Bool
+isEnemyPiece' (Just p) pl =
+    player p /= pl
+isEnemyPiece' Nothing _ =
+    False
+
+isFriendlyPiece :: Pos -> Player -> [Piece] -> Bool
+isFriendlyPiece pos pl pieces =
+    isFriendlyPiece' (getPiece pos pieces) pl
+
+isFriendlyPiece' :: Maybe Piece -> Player -> Bool
+isFriendlyPiece' (Just p) pl =
+    player p == pl
+isFriendlyPiece' Nothing _ =
+    False
 
 initBlack :: [Piece]
 initBlack =
