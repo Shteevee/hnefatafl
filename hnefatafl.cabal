@@ -31,6 +31,7 @@ library
       Piece
       Player
       ValidMove
+      Victory
   other-modules:
       Paths_hnefatafl
   hs-source-dirs:

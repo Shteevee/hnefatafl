@@ -7,6 +7,7 @@ import ParseMove
 import Move
 import ValidMove
 import GameState
+import Victory
 
 gameStep :: GameState -> Maybe Move -> IO ()
 gameStep gs (Just move) =
@@ -15,13 +16,13 @@ gameStep gs Nothing = do
     putStrLn "Move was invalid. Moves must be in the format \"a0 k10\""
     handleInput gs
 
-gameStep' :: Either Error Bool -> GameState -> Move -> IO()
-gameStep' (Right _) gs move =
+gameStep' :: Maybe Error -> GameState -> Move -> IO()
+gameStep' Nothing gs move =
     gameLoop gs {
             currentPlayer = nextPlayer $ currentPlayer gs,
             pieces = makeMove gs move
         }
-gameStep' (Left err) gs _ = do
+gameStep' (Just err) gs _ = do
     putStrLn err
     handleInput gs
 
@@ -32,7 +33,13 @@ handleInput gs = do
         gameStep gs (parseMove line)
 
 gameLoop :: GameState -> IO ()
-gameLoop gs = do
+gameLoop gs =
+    gameLoop' gs (checkVictory gs)
+
+gameLoop' :: GameState -> Maybe Player -> IO ()
+gameLoop' gs Nothing = do
     putStrLn $ displayBoard $ pieces gs
     putStrLn $ playerMessage $ currentPlayer gs
     handleInput gs
+gameLoop' gs (Just victor) =
+    putStrLn $ victorMessage victor

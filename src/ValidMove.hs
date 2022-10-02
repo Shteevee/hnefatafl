@@ -42,13 +42,13 @@ pathIsValid ((srcX,srcY),(destX,destY)) pieces
         all (\Piece {pos=pos} -> pos `notElem` posBetween) pieces
     | otherwise = False
 
-validMove :: GameState -> Move -> Either Error Bool
+validMove :: GameState -> Move -> Maybe Error
 validMove GameState {pieces=ps, currentPlayer=pl} mv
-    | uncurry (==) mv = Left "You must move a unit"
-    | not (playerOwnsPiece srcPiece pl) = Left "This is not a unit you can move"
-    | not (pathIsValid mv ps) = Left "Units cannot move through other units and must move straight"
-    | not (destinationIsValid (snd mv) srcPiece destPiece) = Left "Cannot move this unit to this tile"
-    | otherwise = Right True
+    | uncurry (==) mv = Just "You must move a unit"
+    | not (playerOwnsPiece srcPiece pl) = Just "This is not a unit you can move"
+    | not (pathIsValid mv ps) = Just "Units cannot move through other units and must move straight"
+    | not (destinationIsValid (snd mv) srcPiece destPiece) = Just "Cannot move this unit to this tile"
+    | otherwise = Nothing
     where
         srcPiece = getPiece (fst mv) ps
         destPiece = getPiece (snd mv) ps
