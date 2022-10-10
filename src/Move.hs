@@ -19,8 +19,20 @@ makeMove' (Just srcPiece) gs (src,dest)
 makeMove' Nothing gs _ =
     pieces gs
 
-getAdjacentPos :: Pos -> [(Pos,Pos)]
-getAdjacentPos (x,y) =
+filterNothingPieces :: [Piece] -> Maybe Piece -> [Piece]
+filterNothingPieces acc (Just p) =
+    acc ++ [p]
+filterNothingPieces acc Nothing =
+    acc
+
+findTakenPos :: Player -> [Piece] -> [Pos] -> (Pos,Pos) -> [Pos]
+findTakenPos pl pieces acc (pos1, pos2)
+    | isRegEnemyPiece pos1 pl pieces && pos2 `elem` cornerPos = acc ++ [pos1]
+    | isRegEnemyPiece pos1 pl pieces && isFriendlyPiece pos2 pl pieces = acc ++ [pos1]
+    | otherwise = acc
+
+getAdjacentPairPos :: Pos -> [(Pos,Pos)]
+getAdjacentPairPos (x,y) =
     [
         ((x-1,y),(x-2,y)),
         ((x+1,y),(x+2,y)),
@@ -28,28 +40,11 @@ getAdjacentPos (x,y) =
         ((x,y+1),(x,y+2))
     ]
 
-getAdjacentPieces :: Pos -> [Piece] -> [(Maybe Piece, Maybe Piece)]
-getAdjacentPieces pos pieces =
-    map (\(p1,p2) -> (getPiece p1 pieces, getPiece p2 pieces)) (getAdjacentPos pos)
-
-filterNothingPieces :: [Piece] -> Maybe Piece -> [Piece]
-filterNothingPieces acc (Just p) =
-    acc ++ [p]
-filterNothingPieces acc Nothing =
-    acc
-
--- TODO: king taking logic
-findTakenPos :: Player -> [Piece] -> [Pos] -> (Pos,Pos) -> [Pos]
-findTakenPos pl pieces acc (pos1, pos2)
-    | isEnemyPiece pos1 pl pieces && pos2 `elem` cornerPos = acc ++ [pos1]
-    | isEnemyPiece pos1 pl pieces && isFriendlyPiece pos2 pl pieces = acc ++ [pos1]
-    | otherwise = acc
-
 getTakenPieces :: Pos -> Player -> [Piece] -> [Piece]
 getTakenPieces pos pl pieces =
     foldl filterNothingPieces [] $ map (`getPiece` pieces) takenPos
     where
-        takenPos = foldl (findTakenPos pl pieces) [] (getAdjacentPos pos)
+        takenPos = foldl (findTakenPos pl pieces) [] (getAdjacentPairPos pos)
 
 takePieces :: Pos -> Player -> [Piece] -> [Piece]
 takePieces dest pl pieces =

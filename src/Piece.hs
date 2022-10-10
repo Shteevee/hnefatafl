@@ -1,7 +1,7 @@
 module Piece where
 
-import Player
 import Data.List (find)
+import Player
 
 type Pos = (Int, Int)
 data UnitType = King | Reg deriving (Eq, Show)
@@ -31,14 +31,14 @@ pieceString Nothing = "."
 getPiece :: Pos -> [Piece] -> Maybe Piece
 getPiece (x,y) = find (\Piece{ pos=(px, py) } -> px == x && py == y)
 
-isEnemyPiece :: Pos -> Player -> [Piece] -> Bool
-isEnemyPiece pos pl pieces =
-    isEnemyPiece' (getPiece pos pieces) pl
+isRegEnemyPiece :: Pos -> Player -> [Piece] -> Bool
+isRegEnemyPiece pos pl pieces =
+    isRegEnemyPiece' (getPiece pos pieces) pl
 
-isEnemyPiece' :: Maybe Piece -> Player -> Bool
-isEnemyPiece' (Just p) pl =
-    player p /= pl
-isEnemyPiece' Nothing _ =
+isRegEnemyPiece' :: Maybe Piece -> Player -> Bool
+isRegEnemyPiece' (Just p) pl =
+    player p /= pl && unitType p /= King
+isRegEnemyPiece' Nothing _ =
     False
 
 isFriendlyPiece :: Pos -> Player -> [Piece] -> Bool
@@ -82,3 +82,34 @@ displayRow r ps =
 displayBoard :: [Piece] -> String
 displayBoard ps =
     foldl (\acc r -> acc ++ displayRow r ps ++ "\n") "" [boardMin..boardMax]
+
+getAdjacentPos :: Piece -> [Pos]
+getAdjacentPos Piece{pos=(x,y)} =
+    [
+        (x+1,y),
+        (x-1,y),
+        (x,y+1),
+        (x,y-1)
+    ]
+
+getAdjacentPieces :: Piece -> [Piece] -> [Piece]
+getAdjacentPieces p =
+    filter (\Piece{pos=pos} -> pos `elem` adjPos)
+    where
+        adjPos = getAdjacentPos p
+
+getAdjacentEnemies :: Piece -> [Piece] -> [Piece]
+getAdjacentEnemies p ps =
+    filter (\Piece{player=pl} -> pl /= player p) adjPieces
+    where
+        adjPieces = getAdjacentPieces p ps
+
+getKing :: [Piece] -> Maybe Piece
+getKing = find (\Piece{unitType=ut} -> ut == King)
+
+atEdge :: Piece -> Bool
+atEdge Piece{pos=(x,y)} =
+    x == boardMin ||
+    x == boardMax ||
+    y == boardMin ||
+    y == boardMax
